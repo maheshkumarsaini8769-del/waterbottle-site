@@ -25,21 +25,21 @@ export const PRODUCTS = [
     packSize: '78 Bottles / Case',
     unitsPerCase: 78,
     volume: '200 ml × 78 (15.6 Liters Total)',
-    moq: 10,
+    moq: 5,
     badge: 'Event Pack',
     rating: 4.8,
     reviews: 96,
     image: assetUrl('/bottle.png'),
     tierDiscounts: [
-      { min: 10, label: '10 - 49 Cases', price: 585.00, discount: 'Standard B2B' },
-      { min: 50, label: '50 - 149 Cases', price: 526.50, discount: '10% OFF' },
-      { min: 150, label: '150+ Cases (Pallet)', price: 468.00, discount: '20% OFF' }
+      { min: 5, label: '5 - 19 Cases', price: 585.00, discount: 'Standard B2B' },
+      { min: 20, label: '20 - 49 Cases', price: 526.50, discount: '10% OFF' },
+      { min: 50, label: '50+ Cases (Pallet)', price: 468.00, discount: '20% OFF' }
     ],
     specs: {
       packaging: 'Heavy-Duty Corrugated Master Carton (78 Units)',
       totalVolume: '15.6 Liters per Case',
       grossWeight: '16.5 kg / Case',
-      moq: '10 Cases (780 Bottles Minimum)',
+      moq: '5 Cases (390 Bottles Minimum)',
       ph: '7.2 - Neutral',
       tds: '120 ppm Balanced',
       certifications: 'BIS / FSSAI / ISO 22000 Certified'
