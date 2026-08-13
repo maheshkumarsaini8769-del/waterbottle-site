@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { DEFAULT_CONFIG } from '../data/siteConfig';
-import { PRODUCTS as DEFAULT_PRODUCTS, IMAGES } from '../data/products';
+import { PRODUCTS as DEFAULT_PRODUCTS, IMAGES, assetUrl } from '../data/products';
 
 const SiteContext = createContext();
 
@@ -39,7 +39,10 @@ function loadConfig() {
 function loadProducts() {
   try {
     const saved = localStorage.getItem(PRODUCTS_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const list = JSON.parse(saved);
+      return list.map((p) => ({ ...p, image: assetUrl(p.image) }));
+    }
   } catch (e) {
     console.error('Failed to load products', e);
   }

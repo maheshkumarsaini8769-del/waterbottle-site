@@ -1,3 +1,11 @@
+const BASE = import.meta.env.BASE_URL || '/';
+
+export function assetUrl(path) {
+  if (!path) return path;
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  return BASE + path.replace(/^\//, '');
+}
+
 export const PRODUCTS = [
   {
     id: '200ml-case',
@@ -14,7 +22,7 @@ export const PRODUCTS = [
     badge: 'Event Pack',
     rating: 4.8,
     reviews: 96,
-    image: '/bottle.png',
+    image: assetUrl('/bottle.png'),
     tierDiscounts: [
       { min: 10, label: '10 - 49 Cases', price: 180.00, discount: 'Standard B2B' },
       { min: 50, label: '50 - 149 Cases', price: 162.00, discount: '10% OFF' },
@@ -45,7 +53,7 @@ export const PRODUCTS = [
     badge: 'Popular B2B',
     rating: 4.9,
     reviews: 184,
-    image: '/bottle.png',
+    image: assetUrl('/bottle.png'),
     tierDiscounts: [
       { min: 5, label: '5 - 19 Cases', price: 240.00, discount: 'Standard B2B' },
       { min: 20, label: '20 - 49 Cases', price: 216.00, discount: '10% OFF' },
@@ -76,7 +84,7 @@ export const PRODUCTS = [
     badge: 'Best Seller',
     rating: 4.9,
     reviews: 328,
-    image: '/bottle.png',
+    image: assetUrl('/bottle.png'),
     tierDiscounts: [
       { min: 5, label: '5 - 19 Cases', price: 300.00, discount: 'Standard B2B' },
       { min: 20, label: '20 - 49 Cases', price: 270.00, discount: '10% OFF' },
@@ -107,7 +115,7 @@ export const PRODUCTS = [
     badge: 'Enterprise Choice',
     rating: 5.0,
     reviews: 580,
-    image: '/bottle.png',
+    image: assetUrl('/bottle.png'),
     tierDiscounts: [
       { min: 5, label: '5 - 19 Cases', price: 360.00, discount: 'Standard B2B' },
       { min: 20, label: '20 - 49 Cases', price: 324.00, discount: '10% OFF' },
@@ -126,9 +134,9 @@ export const PRODUCTS = [
 ];
 
 export const IMAGES = {
-  heroBottle: '/bottle.png',
-  detailBottle: '/bottle.png',
-  rootScreen: '/screen.png',
+  heroBottle: assetUrl('/bottle.png'),
+  detailBottle: assetUrl('/bottle.png'),
+  rootScreen: assetUrl('/screen.png'),
   sustainability: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAPphJJtJ-2pl1K9sOiIYHEeLkX5abLgci1jfjT_me7t6UlJg7E3tkMp5LNEPFjvDq-BudayzWGPfz-X8Ot1RwV-RyRl3dfMzbvkKjHgJ3uba3VwXda01RRE0Szl73paPyLhJcLRfOKTU6j5YPmRxr7z-CwI42m-3i6hbwzEztGZ6x7gxAb95jj3vS33ep9GHmekfHp8ChfW0QmbTvJqengY9oO8aRnNDfxr8e059Jdxh0BFuPCLzu-MQ',
   officeBuilding: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDdCFqGxbYw7Tta6bKKFY5HyuH35WS_v0wmRc_Uewn33VOnbgMSGee1SHra3hsNWr1WFUg0hNzfAgHmp0Q3pyjEs-j9rlcEK_nXerWYSNasy5clWI-nDyMZCsMqpMIIsgWYQ2tHXomK6T_huh2O0TkgreeTS8QxQorTiTo_BG3xNxUkZCiVceto3U5kQ6J_cig51nTk9gtZfotA6xPywV-K5B4e5ZhagVGvpn6nK8JI2V-mGtwqYZq1Ug',
   waterDrops: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUTXSlGCy52GgOW06n8AHWNL0-EU-FszdB8Q2eOeA_3bindsKKU8E8q6DXkWwES40lcrGdSnzwalWkVS4oZWdWVm2SaeX4bVlZokVBqkYfENiz2_yjJAi2FbTsVSxXkGWNuDHmn0e3QeiG-DaUvnsc7ZUFrSB7kBLrfdIh4H7UyyzpAMYMs1NRO1CB4UcYDbEiMMZklcfSu2dsu1v74-1_0Y6ZJ-Mo_nrHt0FgQdKa-vI9P2G1EkHmVA',

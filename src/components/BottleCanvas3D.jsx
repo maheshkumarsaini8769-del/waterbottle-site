@@ -83,8 +83,8 @@ export default function BottleCanvas3D({ className = "w-full max-w-[450px] h-[58
         {/* Real Photorealistic Bottle Image */}
         <div className="relative animate-float" style={{ transform: 'translateZ(40px)' }}>
           <img
-            src="/bottle.png"
-            alt="Aqua Pure Natural Mineral Water"
+            src={`${(import.meta.env.BASE_URL || '/')}bottle.png`}
+            alt="Natural Mineral Water Bottle"
             draggable="false"
             className="h-[540px] sm:h-[640px] w-auto object-contain drop-shadow-[0_25px_40px_rgba(0,101,141,0.28)] select-none pointer-events-none"
           />
