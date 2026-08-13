@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useSite } from '../context/SiteContext';
 import { ShoppingCart, Menu, X, Droplets, ArrowRight } from 'lucide-react';
+import { NavbarContactButtons } from './QuickContact';
 
 export default function Navbar({ activePage, setActivePage }) {
   const { cartCount, setIsCartOpen } = useCart();
@@ -112,6 +113,9 @@ export default function Navbar({ activePage, setActivePage }) {
 
           {/* Trailing Actions */}
           <div className="flex items-center space-x-4">
+            {/* WhatsApp + Call (desktop, next to Shop Now) */}
+            <NavbarContactButtons />
+
             {/* Cart Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}

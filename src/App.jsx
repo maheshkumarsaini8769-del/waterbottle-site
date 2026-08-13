@@ -10,6 +10,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import OurStoryPage from './pages/OurStoryPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
+import { FloatingContactButtons } from './components/QuickContact';
 
 function SiteApp() {
   const { config } = useSite();
@@ -58,6 +59,9 @@ function SiteApp() {
 
       {/* Global Toast Alerts */}
       <Toast />
+
+      {/* Floating WhatsApp + Call buttons (mobile, bottom-right) */}
+      <FloatingContactButtons />
     </div>
   );
 }
