@@ -145,14 +145,6 @@ export default function HomePage({ onNavigate }) {
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = c.primary; }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e2e2e2'; }}
             >
-              {product.badge && (
-                <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-[9px] sm:text-xs font-bold uppercase tracking-wider z-20"
-                  style={{ backgroundColor: `${c.success}26`, color: '#006d33', border: `1px solid ${c.success}4d` }}
-                >
-                  {product.badge}
-                </div>
-              )}
-
               {/* 70% Overflowing Bottle Top Section */}
               <div className="-mt-24 sm:-mt-36 md:-mt-44 h-40 sm:h-60 md:h-68 w-full flex items-center justify-center relative z-10 mb-2 sm:mb-3 pointer-events-none">
                 <img
