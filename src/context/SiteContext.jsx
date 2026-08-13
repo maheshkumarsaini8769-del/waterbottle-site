@@ -69,6 +69,29 @@ export function SiteProvider({ children }) {
     }
   }, [products]);
 
+  // Live sync: changes made in the admin tab instantly appear in the website tab (same origin)
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === CONFIG_KEY && e.newValue) {
+        try {
+          setConfig(deepMerge(DEFAULT_CONFIG, JSON.parse(e.newValue)));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      if (e.key === PRODUCTS_KEY && e.newValue) {
+        try {
+          const list = JSON.parse(e.newValue);
+          setProducts(list.map((p) => ({ ...p, image: assetUrl(p.image) })));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const updateConfig = useCallback((patch) => {
     setConfig((prev) => deepMerge(prev, patch));
   }, []);
