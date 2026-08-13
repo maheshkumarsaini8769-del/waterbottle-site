@@ -10,7 +10,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import OurStoryPage from './pages/OurStoryPage';
 import ContactPage from './pages/ContactPage';
 import AdminPage from './pages/AdminPage';
-import { FloatingContactButtons } from './components/QuickContact';
+import { FloatingContactButtons, OrderStatusButton } from './components/QuickContact';
 
 function SiteApp() {
   const { config } = useSite();
@@ -62,6 +62,9 @@ function SiteApp() {
 
       {/* Floating WhatsApp + Call buttons (mobile, bottom-right) */}
       <FloatingContactButtons />
+
+      {/* Check / Update Order button (bottom-left, after order placed) */}
+      <OrderStatusButton />
     </div>
   );
 }

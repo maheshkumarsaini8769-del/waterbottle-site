@@ -1,6 +1,42 @@
 import React from 'react';
 import { useSite } from '../context/SiteContext';
-import { MessageCircle, Phone } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { MessageCircle, Phone, ShoppingBag, RefreshCw } from 'lucide-react';
+
+export function OrderStatusButton() {
+  const { config } = useSite();
+  const { placedOrder, cartItems, setIsCartOpen } = useCart();
+  if (!placedOrder) return null;
+
+  const isUpdating = cartItems.length > 0;
+  const hasOrderItems = placedOrder.items && placedOrder.items.length > 0;
+
+  return (
+    <div className="fixed bottom-5 left-4 z-40">
+      <button
+        onClick={() => setIsCartOpen(true)}
+        className="flex items-center gap-2.5 bg-white text-[#1a1c1c] pl-3 pr-4 py-2.5 rounded-full shadow-2xl border border-[#e2e2e2] hover:scale-105 active:scale-95 transition-transform font-bold text-xs sm:text-sm"
+        style={{ boxShadow: `0 8px 24px ${config.colors.dark}33` }}
+        title="View your order"
+      >
+        <span
+          className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0"
+          style={{ backgroundColor: isUpdating ? '#f59e0b' : config.colors.primary }}
+        >
+          {isUpdating ? <RefreshCw className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} /> : <ShoppingBag className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />}
+        </span>
+        <span className="leading-tight text-left">
+          <span className="block text-[10px] uppercase tracking-wider text-[#6e7881] font-semibold">
+            {hasOrderItems ? `Order ${placedOrder.id}` : 'Your Order'}
+          </span>
+          <span className="block" style={{ color: config.colors.dark }}>
+            {isUpdating ? 'Update Order' : 'Check Your Order'}
+          </span>
+        </span>
+      </button>
+    </div>
+  );
+}
 
 function useContactLinks() {
   const { config } = useSite();
