@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useSite } from '../context/SiteContext';
+import { androidNote, beginTruecaller, isAndroid, pollTruecaller } from '../utils/truecaller';
 import {
   LayoutDashboard, Palette, Droplets, ShoppingBag, Globe, Mail, Image as ImageIcon,
   LogOut, Eye, Upload, Trash2, Plus, Download, UploadCloud, RotateCcw, Save, Lock,
@@ -163,6 +164,7 @@ export default function AdminPage({ onExit }) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('waterbottle_admin_auth') === '1');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [tcBusy, setTcBusy] = useState(false);
   const [showProducts, setShowProducts] = useState({});
   const [toast, setToast] = useState(null);
 
@@ -181,6 +183,48 @@ export default function AdminPage({ onExit }) {
       setLoginError('');
     } else {
       setLoginError('Incorrect password. Try again.');
+    }
+  };
+
+  const handleTruecallerLogin = async () => {
+    if (tcBusy) return;
+    setTcBusy(true);
+    setLoginError('');
+    try {
+      const { available, requestId, config: tcCfg } = await beginTruecaller();
+      if (!available) {
+        setTcBusy(false);
+        setLoginError(
+          tcCfg && tcCfg.enabled === false
+            ? 'Truecaller login is not configured yet. Use the password for now.'
+            : 'Use an Android phone with the Truecaller app installed.'
+        );
+        return;
+      }
+      pollTruecaller({
+        requestId,
+        onResult: (result) => {
+          setTcBusy(false);
+          if (result.status === 'verified') {
+            if (result.isAdmin) {
+              sessionStorage.setItem('waterbottle_admin_auth', '1');
+              setAuthed(true);
+              setLoginError('');
+            } else {
+              setLoginError(`Number +91 ${result.phone} is not the admin number.`);
+            }
+          } else if (result.status === 'user_rejected') {
+            setLoginError('Verification cancelled in Truecaller.');
+          } else if (result.status === 'timeout') {
+            setLoginError('Verification timed out. Please try again.');
+          } else {
+            setLoginError('Verification could not be completed. Try again.');
+          }
+        },
+      });
+    } catch (err) {
+      setTcBusy(false);
+      setLoginError(err.message || 'Truecaller login failed.');
     }
   };
 
@@ -287,6 +331,21 @@ export default function AdminPage({ onExit }) {
             >
               Sign In
             </button>
+
+            {isAndroid() && (
+              <div>
+                <button
+                  type="button"
+                  onClick={handleTruecallerLogin}
+                  disabled={tcBusy}
+                  className="w-full border-2 font-bold py-3 rounded-xl uppercase tracking-wider text-xs transition-all hover:scale-[1.01] disabled:opacity-60"
+                  style={{ borderColor: c.primary, color: c.dark, backgroundColor: '#ffffff' }}
+                >
+                  {tcBusy ? 'Waiting for Truecaller…' : 'Login with Truecaller'}
+                </button>
+                <p className="text-[11px] text-[#94a3b8] text-center mt-1.5">{androidNote()}</p>
+              </div>
+            )}
           </form>
           <p className="text-[11px] text-[#94a3b8] text-center mt-4">
             Default password: <code className="bg-[#f1f5f9] px-1.5 py-0.5 rounded font-bold">admin123</code> (change it in Dashboard)

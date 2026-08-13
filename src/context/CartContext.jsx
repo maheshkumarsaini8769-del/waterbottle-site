@@ -117,8 +117,8 @@ export function CartProvider({ children }) {
     setCartItems([]);
   };
 
-  const checkout = () => {
-    if (cartItems.length === 0) return;
+  const checkout = (customer) => {
+    if (cartItems.length === 0) return null;
     try {
       confetti({
         particleCount: 120,
@@ -139,33 +139,39 @@ export function CartProvider({ children }) {
       image: item.image
     }));
 
+    let newOrder;
     if (placedOrder) {
       // Update the existing order — never place a duplicate
-      setPlacedOrder((prev) => ({
-        ...prev,
+      newOrder = {
+        ...placedOrder,
         items: orderItems,
         total: cartTotal,
         count: cartCount,
         bottles: totalBottles,
+        customer: customer || placedOrder.customer || null,
         updatedAt: new Date().toISOString()
-      }));
+      };
+      setPlacedOrder(newOrder);
       clearCart();
       setIsCartOpen(false);
       showToast('✅ Your existing order has been updated. Our team will contact you shortly.', 'success');
     } else {
-      setPlacedOrder({
+      newOrder = {
         id: 'WB-' + String(Date.now()).slice(-6),
         items: orderItems,
         total: cartTotal,
         count: cartCount,
         bottles: totalBottles,
+        customer: customer || null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
-      });
+      };
+      setPlacedOrder(newOrder);
       clearCart();
       setIsCartOpen(false);
       showToast('🎉 Bulk Purchase Order Placed! Our enterprise B2B team will contact you shortly.', 'success');
     }
+    return newOrder;
   };
 
   const clearPlacedOrder = () => setPlacedOrder(null);

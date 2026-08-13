@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useSite } from '../context/SiteContext';
+import { androidNote, beginTruecaller, isAndroid, pollTruecaller } from '../utils/truecaller';
 import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Truck, FileSpreadsheet, CheckCircle2, Phone, MessageCircle, RefreshCw } from 'lucide-react';
 
 export default function CartDrawer({ onNavigate }) {
@@ -20,6 +21,7 @@ export default function CartDrawer({ onNavigate }) {
     clearPlacedOrder
   } = useCart();
   const { config } = useSite();
+  const [tcBusy, setTcBusy] = useState(false);
 
   // Lock background body scroll & blur when cart is open
   useEffect(() => {
@@ -55,6 +57,66 @@ export default function CartDrawer({ onNavigate }) {
       ? `Hello, I would like to confirm my order ${placedOrder.id} with ${config.site.name}.`
       : `Hello ${config.site.name}! I would like to place a bulk water order.`
   )}`;
+
+  const openOrderWhatsApp = (order) => {
+    const lines = order.items.map((item) => {
+      const price = item.pricePerCase || item.price || 0;
+      return `• ${item.title}: ${item.quantity} cases (${item.quantity * (item.unitsPerCase || 24)} bottles) — ${config.site.currency}${(price * item.quantity).toFixed(2)}`;
+    });
+
+    const customerLines = [];
+    if (order.customer && order.customer.name) {
+      customerLines.push(`Name: ${order.customer.name}`);
+      if (order.customer.phone) customerLines.push(`Mobile: +91 ${order.customer.phone}`);
+    }
+
+    const message = [
+      `🛒 New Bulk Order — ${config.site.name}`,
+      `Order ID: ${order.id}`,
+      ...(customerLines.length ? ['', ...customerLines] : []),
+      '',
+      ...lines,
+      '',
+      `Total: ${order.count} cases / ${order.bottles} bottles`,
+      `Amount: ${config.site.currency}${order.total.toFixed(2)}`,
+      '',
+      'Please confirm my order.'
+    ].join('\n');
+
+    window.open(`https://wa.me/${phoneDigits}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleConfirmOrder = async () => {
+    let customer = null;
+    if (isAndroid()) {
+      try {
+        const { available, requestId } = await beginTruecaller();
+        if (available && requestId) {
+          setTcBusy(true);
+          customer = await new Promise((resolve) => {
+            pollTruecaller({
+              requestId,
+              onResult: (result) => {
+                if (result.status === 'verified') {
+                  resolve({ name: result.name || '', phone: result.phone || '' });
+                } else if (result.status === 'user_rejected' || result.status === 'timeout' || result.status === 'expired' || result.status === 'failed') {
+                  resolve(null);
+                }
+              },
+            });
+          });
+          setTcBusy(false);
+        }
+      } catch {
+        setTcBusy(false);
+        customer = null;
+      }
+    }
+
+    const order = checkout(customer);
+    if (!order) return;
+    openOrderWhatsApp(order);
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -127,6 +189,12 @@ export default function CartDrawer({ onNavigate }) {
                   <p className="text-xs text-[#6e7881] font-semibold uppercase tracking-wider">
                     Order ID: {placedOrder.id}
                   </p>
+                  {placedOrder.customer && placedOrder.customer.name && (
+                    <p className="text-xs text-[#00658d] font-bold">
+                      ✓ Verified: {placedOrder.customer.name}
+                      {placedOrder.customer.phone ? ` • +91 ${placedOrder.customer.phone}` : ''}
+                    </p>
+                  )}
                 </div>
 
                 {/* Items list */}
@@ -309,13 +377,19 @@ export default function CartDrawer({ onNavigate }) {
               </div>
 
               <button
-                onClick={checkout}
-                className="w-full bg-[#00aeef] hover:bg-[#00658d] text-white font-bold py-4 rounded uppercase tracking-wider text-sm shadow-[0px_4px_20px_rgba(0,174,239,0.25)] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]"
+                onClick={handleConfirmOrder}
+                disabled={tcBusy}
+                className="w-full bg-[#00aeef] hover:bg-[#00658d] text-white font-bold py-4 rounded uppercase tracking-wider text-sm shadow-[0px_4px_20px_rgba(0,174,239,0.25)] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait"
                 style={{ backgroundColor: config.colors.primary }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = config.colors.dark)}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = config.colors.primary)}
               >
-                {placedOrder ? (
+                {tcBusy ? (
+                  <span className="inline-flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Verifying with Truecaller…
+                  </span>
+                ) : placedOrder ? (
                   <>
                     <RefreshCw className="w-4 h-4" />
                     <span>Update Existing Order</span>
