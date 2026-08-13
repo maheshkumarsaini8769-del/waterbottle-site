@@ -6,6 +6,20 @@ const SiteContext = createContext();
 
 const CONFIG_KEY = 'waterbottle_site_config_v2';
 const PRODUCTS_KEY = 'waterbottle_products_v4';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4001/api';
+
+async function apiPut(path, body) {
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
 
 function isPlainObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value);
@@ -59,6 +73,7 @@ export function SiteProvider({ children }) {
     } catch (e) {
       console.error(e);
     }
+    apiPut('/config', config);
   }, [config]);
 
   useEffect(() => {
@@ -67,7 +82,32 @@ export function SiteProvider({ children }) {
     } catch (e) {
       console.error(e);
     }
+    apiPut('/products', products);
   }, [products]);
+
+  // Load authoritative data from MongoDB backend (fallback: localStorage / defaults)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/site`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.config && typeof data.config === 'object') {
+          setConfig(deepMerge(DEFAULT_CONFIG, data.config));
+        }
+        if (Array.isArray(data.products) && data.products.length > 0) {
+          setProducts(data.products.map((p) => ({ ...p, image: assetUrl(p.image) })));
+        }
+      } catch (e) {
+        // backend offline → keep using localStorage / defaults
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Live sync: changes made in the admin tab instantly appear in the website tab (same origin)
   useEffect(() => {
