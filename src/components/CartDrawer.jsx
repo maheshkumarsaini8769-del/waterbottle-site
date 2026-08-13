@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Truck, FileSpreadsheet } from 'lucide-react';
+import { useSite } from '../context/SiteContext';
+import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Truck, FileSpreadsheet, CheckCircle2, Phone, MessageCircle } from 'lucide-react';
 
 export default function CartDrawer({ onNavigate }) {
   const {
@@ -14,8 +15,11 @@ export default function CartDrawer({ onNavigate }) {
     cartCount,
     totalBottles,
     bulkSavings,
-    calculateItemPrice
+    calculateItemPrice,
+    placedOrder,
+    clearPlacedOrder
   } = useCart();
+  const { config } = useSite();
 
   // Lock background body scroll & blur when cart is open
   useEffect(() => {
@@ -90,7 +94,64 @@ export default function CartDrawer({ onNavigate }) {
 
           {/* Cart Items List */}
           <div className="flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-4">
-            {cartItems.length === 0 ? (
+            {placedOrder ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-4 space-y-5">
+                <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center animate-bounce">
+                  <CheckCircle2 className="w-12 h-12 text-emerald-600" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-2xl font-black text-[#1a1c1c]">Order Placed!</h3>
+                  <p className="text-xs text-[#6e7881] font-semibold uppercase tracking-wider">
+                    Order ID: {placedOrder.id}
+                  </p>
+                </div>
+
+                <div className="w-full bg-white border border-[#e2e2e2] rounded-xl p-4 space-y-1.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-[#3e4850]">Master Cartons</span>
+                    <span className="font-bold text-[#1a1c1c]">{placedOrder.count} Cases</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#3e4850]">Total Bottles</span>
+                    <span className="font-bold text-[#1a1c1c]">{placedOrder.bottles} Units</span>
+                  </div>
+                  <div className="flex justify-between pt-1.5 border-t border-[#e2e2e2]">
+                    <span className="text-[#3e4850]">Order Amount</span>
+                    <span className="font-black text-[#00658d] text-lg">{config.site.currency}{placedOrder.total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="bg-[#00aeef]/10 border border-[#00aeef]/30 rounded-xl p-4 text-sm text-[#1a1c1c] font-medium">
+                  🚚 Your order has been received. Our {config.site.name} team will call you within a few minutes to confirm delivery.
+                  <span className="block mt-1.5 font-bold" style={{ color: config.colors.dark }}>Need it faster? Call us right now!</span>
+                </div>
+
+                <div className="w-full space-y-2.5">
+                  <a
+                    href={`tel:+${(config.contact.phone || '').replace(/[^\d]/g, '')}`}
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl uppercase tracking-wider text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                  >
+                    <Phone className="w-4.5 h-4.5" style={{ width: 18, height: 18 }} />
+                    Call Now
+                  </a>
+                  <a
+                    href={`https://wa.me/${(config.contact.phone || '').replace(/[^\d]/g, '')}?text=${encodeURIComponent('Hello, my order ' + placedOrder.id + ' has been placed. Please confirm.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-[#25D366] hover:bg-[#1fb959] text-white font-bold py-3.5 rounded-xl uppercase tracking-wider text-sm shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.98]"
+                  >
+                    <MessageCircle className="w-4.5 h-4.5 fill-white" style={{ width: 18, height: 18 }} />
+                    WhatsApp Us
+                  </a>
+                  <button
+                    onClick={() => { clearPlacedOrder(); onNavigate('product'); }}
+                    className="w-full bg-[#f9f9f9] hover:bg-[#eeeeee] text-[#00658d] font-bold py-3 rounded-xl uppercase tracking-wider text-xs transition-colors"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              </div>
+            ) : cartItems.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
                 <div className="w-20 h-20 rounded-full bg-[#eeeeee] flex items-center justify-center text-[#6e7881]">
                   <ShoppingBag className="w-10 h-10" />

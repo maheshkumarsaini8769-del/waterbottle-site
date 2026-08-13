@@ -15,6 +15,7 @@ export function CartProvider({ children }) {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [placedOrder, setPlacedOrder] = useState(null);
 
   useEffect(() => {
     try {
@@ -108,10 +109,19 @@ export function CartProvider({ children }) {
     } catch (err) {
       console.log(err);
     }
+    setPlacedOrder({
+      id: 'WB-' + String(Date.now()).slice(-6),
+      items: cartItems,
+      total: cartTotal,
+      count: cartCount,
+      bottles: totalBottles
+    });
     clearCart();
     setIsCartOpen(false);
     showToast('🎉 Bulk Purchase Order Placed! Our enterprise B2B team will contact you shortly.', 'success');
   };
+
+  const clearPlacedOrder = () => setPlacedOrder(null);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0); // Total Cases
   const totalBottles = cartItems.reduce((sum, item) => sum + (item.quantity * (item.unitsPerCase || 24)), 0);
@@ -138,6 +148,8 @@ export function CartProvider({ children }) {
         removeFromCart,
         clearCart,
         checkout,
+        placedOrder,
+        clearPlacedOrder,
         cartCount,
         totalBottles,
         cartTotal,
