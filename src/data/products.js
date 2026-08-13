@@ -3,10 +3,12 @@ const BASE = import.meta.env.BASE_URL || '/';
 export function assetUrl(path) {
   if (!path) return path;
   if (path.startsWith('http') || path.startsWith('data:')) return path;
-  const cleaned = path.replace(/^\//, '');
+  let cleaned = path.replace(/^\//, '');
   const baseClean = BASE.replace(/^\//, '').replace(/\/$/, '');
-  if (baseClean && cleaned.startsWith(baseClean + '/')) {
-    return '/' + cleaned;
+  if (baseClean) {
+    while (cleaned.startsWith(baseClean + '/')) {
+      cleaned = cleaned.slice(baseClean.length + 1);
+    }
   }
   return BASE + cleaned;
 }
