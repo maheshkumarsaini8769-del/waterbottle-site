@@ -15,7 +15,26 @@ export function CartProvider({ children }) {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [placedOrder, setPlacedOrder] = useState(null);
+  const [placedOrder, setPlacedOrder] = useState(() => {
+    try {
+      const saved = localStorage.getItem('waterbottle_placed_order_v1');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (placedOrder) {
+        localStorage.setItem('waterbottle_placed_order_v1', JSON.stringify(placedOrder));
+      } else {
+        localStorage.removeItem('waterbottle_placed_order_v1');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [placedOrder]);
 
   useEffect(() => {
     try {
@@ -109,16 +128,44 @@ export function CartProvider({ children }) {
     } catch (err) {
       console.log(err);
     }
-    setPlacedOrder({
-      id: 'WB-' + String(Date.now()).slice(-6),
-      items: cartItems,
-      total: cartTotal,
-      count: cartCount,
-      bottles: totalBottles
-    });
-    clearCart();
-    setIsCartOpen(false);
-    showToast('🎉 Bulk Purchase Order Placed! Our enterprise B2B team will contact you shortly.', 'success');
+
+    const orderItems = cartItems.map((item) => ({
+      id: item.id,
+      title: item.title,
+      quantity: item.quantity,
+      unitsPerCase: item.unitsPerCase || 24,
+      pricePerCase: item.pricePerCase || item.price,
+      packSize: item.packSize || '',
+      image: item.image
+    }));
+
+    if (placedOrder) {
+      // Update the existing order — never place a duplicate
+      setPlacedOrder((prev) => ({
+        ...prev,
+        items: orderItems,
+        total: cartTotal,
+        count: cartCount,
+        bottles: totalBottles,
+        updatedAt: new Date().toISOString()
+      }));
+      clearCart();
+      setIsCartOpen(false);
+      showToast('✅ Your existing order has been updated. Our team will contact you shortly.', 'success');
+    } else {
+      setPlacedOrder({
+        id: 'WB-' + String(Date.now()).slice(-6),
+        items: orderItems,
+        total: cartTotal,
+        count: cartCount,
+        bottles: totalBottles,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      clearCart();
+      setIsCartOpen(false);
+      showToast('🎉 Bulk Purchase Order Placed! Our enterprise B2B team will contact you shortly.', 'success');
+    }
   };
 
   const clearPlacedOrder = () => setPlacedOrder(null);
