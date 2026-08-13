@@ -5,7 +5,7 @@ import { PRODUCTS as DEFAULT_PRODUCTS, IMAGES, assetUrl } from '../data/products
 const SiteContext = createContext();
 
 const CONFIG_KEY = 'waterbottle_site_config_v2';
-const PRODUCTS_KEY = 'waterbottle_products_v2';
+const PRODUCTS_KEY = 'waterbottle_products_v3';
 
 function isPlainObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value);
